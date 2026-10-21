@@ -1,170 +1,79 @@
 ![](../../workflows/gds/badge.svg) ![](../../workflows/docs/badge.svg)
 
-# CMOS ASIC for Simultaneous Electrode-Skin Impedance Measurement 
+# Fully Differential Op-Amp for Electrode–Skin Impedance Extraction (Tiny Tapeout TTSKY25a)
 
-- [Read the documentation for project](docs/info.md)
+A two-stage, fully differential CMOS operational amplifier designed in the open-source **SkyWater SKY130** process and **fabricated on the Tiny Tapeout TTSKY25a shuttle**. It is the core building block of a custom ASIC that extracts electrode–skin impedance (ESI) mismatch in wearable EEG, so that motion artifacts can be cancelled with an adaptive filter.
 
-## What are Motion Artifacts?
+- **Paper:** I. Nethmal\*, L. Atapattu\*, E. Jayathilaka\*, S. Madugalle\*, *et al.*, "An Open-Source CMOS ASIC for I/Q Based Electrode-Skin Impedance Mismatch Extraction," accepted at **IEEE ICM 2026** (\*equal contribution).
+- **System-level work:** "A Dry-Contact Ear-EEG System With Continuous Electrode-Skin Impedance Mismatch Monitoring for Motion Artifact Cancellation Using DRL Stimulus," **IEEE BioCAS 2026** — [arXiv:2609.02777](https://arxiv.org/abs/2609.02777)
+- **Status:** fabricated chips received; post-silicon functional testing is in progress. All performance figures below are **post-layout simulation**, not measurements.
+- Tiny Tapeout datasheet: [docs/info.md](docs/info.md)
 
-unwanted, nonstationary distortions that contaminate bio-signals due to movement of the subject or electrodes during recording
+## Results (post-layout simulation)
 
-## Remove motion artifacts using impedance measurement 
+| Parameter | Value |
+|---|---|
+| Process / supply | SKY130 130 nm CMOS / 1.8 V |
+| DC open-loop gain | ≈ 100 dB |
+| Unity-gain bandwidth | 2.3 MHz |
+| Phase margin | ≥ 52° |
+| CMRR | ≈ 91 dB at 1 kHz |
+| Power | ≈ 500 µW |
+| Layout area | ≈ 0.04 mm² |
 
-There are various methods to remove motion artifacts. In this project, we expect to use adaptive filtering techniques, providing the skin–electrode impedance signal as a reference to filter out motion artifacts.
+<p align="center">
+  <img src="figures/opamp_postlayout_gain_cmrr_phase.png" width="48%" alt="Post-layout gain, CMRR and phase"/>
+  <img src="figures/bpf_postlayout_response.png" width="48%" alt="Post-layout band-pass filter response"/>
+</p>
+<p align="center"><em>Left: post-layout open-loop gain, CMRR and phase. Right: 4th-order MFB band-pass filter built from two of these op-amps, centred at 1.05 kHz (213 Hz bandwidth). Figures from the ICM 2026 paper.</em></p>
 
-## Impedance mesuremnt ASIC
+## Layout
 
-In this project, we will design and tape out an application-specific integrated circuit (ASIC) to obtain the in-phase and quadrature (I/Q) components of the skin–electrode impedance signal, stimulated by a body signal, while using the EEG signal as the input. The ASIC consists of four fully differential operational amplifiers for implementing an active RC band-pass filter, along with four fully differential multipliers and an oscillator that generates a 1.2 kHz sinusoidal body stimulus signal.
+<p align="center"><img src="figures/opamp_layout.jpg" width="70%" alt="Tiny Tapeout die and op-amp layout"/></p>
+<p align="center"><em>Tiny Tapeout TTSKY25a die (left) and the op-amp layout (right), drawn in Magic. Common-centroid placement, dummy devices and symmetric routing reduce mismatch in the differential paths.</em></p>
 
-![Impedance mesuremnt ASIC](docs/impedance_measurement_ASIC.png)
+## Architecture
 
-## Project Phases  
+- **First stage:** folded-cascode OTA, chosen for high gain with a wider input common-mode range than a telescopic stage at 1.8 V.
+- **Second stage:** common-source gain stage for output swing and drive.
+- **Common-mode feedback:** a separate CMFB loop for each stage (differential-amplifier CMFB on stage 1, resistor-sensing CMFB on stage 2).
+- **Compensation:** Miller capacitors between the two stages.
+- **Bias:** on-chip beta-multiplier current reference with start-up. Two digital pins select self-bias or an external bias current for characterisation.
 
-### Phase 01 – Design and Tapeout of a Fully Differential Operational Amplifier  
-In the first phase of the project, we will design a **fully differential operational amplifier (op-amp)**.  
-This op-amp will serve as a fundamental building block that can be reused across all modules of the ASIC.  
-The design and simulations will be carried out using the **Sky130 PDK**.  
+| | |
+|---|---|
+| ![Op-amp](docs/Operational_amplifier.png) | ![Bias](docs/Biasing_circuit.png) |
+| ![Folded cascode](docs/folded_cascode_opamp.png) | ![CS stage](docs/Common_source_stage.png) |
 
-### Phase 02 – Design and Layout of the ASIC for Impedance Measurement  
-In the second phase, we will design the complete ASIC for **impedance measurement**.  
-The chip will integrate:  
-- Four fully differential op-amps  
-- Four fully differential multipliers  
-- An oscillator to generate the stimulus signal  
+## Where it fits: the ESI-extraction ASIC
 
-The design and layout will be implemented using the **IHP PDK**.  
+A low-amplitude 1 kHz stimulus is injected through the driven-right-leg (DRL) electrode. Two of these op-amps form a 4th-order active-RC band-pass filter that isolates the carrier, and two fully differential multipliers demodulate it into I/Q components. The filter's R and C are off-chip, so the centre frequency can be tuned without a re-spin. The multiplier was laid out separately in IHP SG13G2 for UNIC-CASS 2026: [NethmalWDI/unic_cass_ihp](https://github.com/NethmalWDI/unic_cass_ihp).
 
-#### Phase 01 – Design and Implementation of Fully Differential Operational Amplifier  
+<p align="center"><img src="figures/system_architecture.png" width="70%" alt="ESI extraction system architecture"/></p>
 
-##### Specifications  
+## Repository structure
 
-| Parameter                               | Value 1 | Value 2 | Value 3 |
-|-----------------------------------------|---------|---------|---------|
-| **Supply Voltage (Design Input)**       | 1.7 V   | 1.8 V   | 1.9 V   |
-| **Common Mode Voltage (Design Input)**  | 0.85 V  | 0.9 V   | 0.95 V  |
-| **Common Mode Voltage (Design Output)** | 0.85 V  | 0.9 V   | 0.95 V  |
-| **Temperature (Design Input)**          | 20 °C   | –       | 50 °C   |
-| **PSRR**                                | 170 dB  | 180 dB  | 190 dB  |
-| **CMRR**                                | 230 dB  | 250 dB  | 270 dB  |
-| **Phase Margin**                        | 50°     | 60°     | 70°     |
-| **Gain Bandwidth Product**              | 800 kHz | 1 MHz   | 1.2 MHz |
-| **Open Loop (low-freq) DC Gain**        | 80 dB   | 100 dB  | 120 dB  |
+| Path | Contents |
+|---|---|
+| `src/Opamp_Design/src` | Xschem schematics: OTA, CS stage, bias, top level |
+| `src/Opamp_Design/testbenches`, `src/Opamp_Design/Simulations` | Testbenches: gain/phase, CMRR, PSRR, linearity, transient |
+| `src/Bandpass_filter`, `src/Multiplier` | Filter and multiplier schematics and testbenches |
+| `mag/`, `gds/`, `lef/` | Magic layout and Tiny Tapeout submission views |
+| `docs/` | Tiny Tapeout datasheet and earlier simulation figures |
 
+**Tools:** Xschem, ngspice, Magic, KLayout, Netgen — all open source.
 
-#### Project Architecture  
+## Test plan (in progress)
 
-We expect to design a **two-stage operational amplifier** with a **common-source stage** as second stage for gain enhancement.  
-For each stage, a **common-mode feedback (CMFB) circuit** is used to ensure stability and maintain the desired common-mode voltage throughout the design.  
+Using the AD03 board (see the datasheet): functional check in a band-pass configuration, then offset, linearity, CMRR and PSRR measurements, compared against the post-layout values above.
 
-![Operational_Amplifier](docs/Operational_amplifier.png)
+## Contributors and roles
 
-##### Biasing Circuit  
+| Contributor | Role |
+|---|---|
+| Sajitha Madugalle | Behavioural modelling |
+| Lohan Atapattu | Schematic design and pre-layout simulation |
+| Erandee Jayathilaka | Layout |
+| **Imasha Nethmal** | **Layout, post-layout simulation, and Tiny Tapeout submission** |
 
-We have employed a **beta-multiplier based biasing circuit** design with a **startup circuit**, as shown below:  
-
-![Beta Multiplier Biasing Circuit](docs/Biasing_circuit.png)
-
-##### Operational Amplifier  
-
-For the operational amplifier stage, we have employed a **folded cascode architecture**.  
-Additionally, a **single-ended differential amplifier based common-mode feedback (CMFB) circuit** is used to maintain the common-mode voltage at a fixed reference level.  
-
-![Folded Cascode Amplifier Architecture](docs/folded_cascode_opamp.png)
-
-##### Common Source Stage  
-
-For the common source stage, we have used a **resistor-based common-mode feedback (CMFB) topology** to stabilize the output common-mode voltage.  
-
-![Common Source Stage with CMFB](docs/Common_source_stage.png)
-
-#### Simulations  
-
-For the simulations, we have used the following testbench setup:  
-
-![Simulation Testbench](docs/simulation_testbench.png)
-
-##### Gain Bandwidth Product  
- 
-
-The **gain bandwidth product (GBW)** of our design is shown below.  
-In this simulation, the design also achieves a **65° phase margin**, ensuring stability.  
-
-![Gain Bandwidth Product](docs/Gain_Bandwidth_product.png)
-
-
-##### CMRR  
-
-We have achieved a **high Common-Mode Rejection Ratio (CMRR)** in our circuit, primarily due to its **fully differential architecture**.  
-This enhances noise immunity and improves the overall signal integrity.  
-
-![CMRR Simulation](docs/cmrr_simulation.png)
-
-
-##### PSRR Test Results  
-
-Below are the test results obtained for the **Power Supply Rejection Ratio (PSRR):**  
-
-![PSRR Test Results](docs/pssr_test_results.png)
-
-#### Phase 02 – Design and Layout of the ASIC for Impedance Measurement  
-
-##### Specifications  
-
-| Specification                          | Min   | Typ   | Max   | Unit | Comments |
-|----------------------------------------|-------|-------|-------|------|----------|
-| **Overall Design**                     |       |       |       |      |          |
-| Supply voltage (Design Input)          | 1.7 V | 1.8 V | 1.9 V |      |          |
-| Common mode voltage (Design Input)     | 0.85 V| 0.9 V | 0.95 V|      |          |
-| Common mode voltage (Design Output)    | 0.85 V| 0.9 V | 0.95 V|      |          |
-| Temperature (Design Input)             | 20 °C |       | 50 °C |      |          |
-| **Fully Differential Operational Amplifier** |   |       |       |      |          |
-| PSRR                                   | 170 dB| 180 dB| 190 dB|      |          |
-| CMRR                                   | 230 dB| 250 dB| 270 dB|      |          |
-| Phase margin                           | 50°   | 60°   | 70°   |      |          |
-| Gain bandwidth product                 | 800 kHz| 1 MHz| 1.2 MHz|     |          |
-| Open loop (low-freq) DC gain           | 80 dB | 100 dB| 120 dB|      |          |
-| Common mode voltage (Design Input)     | 0.85 V| 0.9 V | 0.95 V|      |          |
-| **Multiplier**                         |       |       |       |      |          |
-| Linear range                           | 50 mV |       | 200 mV|      |          |
-| Common mode voltage (Design Input)     | 0.85 V| 0.9 V | 0.95 V|      |          |
-| **Oscillator**                         |       |       |       |      |          |
-| Frequency                              | 1 kHz | 1.2 kHz| 1.5 kHz|   |          |
-
-##### Fully Differential Amplifier  
-
-The fully differential amplifier design is the same as described above.  
-
-##### Fully Differential Multiplier  
-
-For the **fully differential multiplier** design, we have employed a **fully differential operational amplifier-based topology**, as shown below:  
-
-![Fully Differential Multiplier](docs/fully_differencial_multiplier.png)
-
-##### Simulations  
-
-###### Linearity  
-
-The **linearity** of the circuit was tested, and the results are shown below:  
-
-![Linearity Test_bench](docs/linearity_test_bench.png)
-
-Above is the linearity testbench for the multiplier
-
-![Linearity Test_results](docs/linearity_test_results.png)
-
-##### Fully Differential Bandpass Filter  
-
-We implemented a **multiple-feedback topology 2nd-order Butterworth bandpass filter**.  
-
-###### Testbench  
-The testbench setup for the filter is shown below:  
-
-![Bandpass Filter Testbench](docs/bandpass_filter_topology.png)  
-
-###### Test Results  
-The testing results for the bandpass filter are shown below:  
-
-![Bandpass Filter Results](docs/bandpass_filter_testing_results.png)  
-
-
-
+Department of Electronic and Telecommunication Engineering, University of Moratuwa, Sri Lanka. Original repository: [LohanAtapattu/ttsky25_EpitaXC](https://github.com/LohanAtapattu/ttsky25_EpitaXC).
