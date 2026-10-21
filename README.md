@@ -46,13 +46,18 @@ A two-stage, fully differential CMOS operational amplifier designed in the open-
 - **Compensation:** Miller capacitors between the two stages.
 - **Bias:** on-chip beta-multiplier current reference with start-up. Two digital pins select self-bias or an external bias current for characterisation.
 
+### 1. Operational Amplifier
 ![Op-amp](docs/Operational_amplifier.png)
 
+### 2. Biasing Circuit
 ![Bias](docs/Biasing_circuit.png)
 
+### 3. Folded Cascode Op-Amp
 ![Folded cascode](docs/folded_cascode_opamp.png)
 
+### 4. Common Source Stage
 ![CS stage](docs/Common_source_stage.png)
+
 
 ## Where it fits: the ESI-extraction ASIC
 
@@ -81,8 +86,8 @@ Using the AD03 board (see the datasheet): functional check in a band-pass config
 | Contributor | Role |
 |---|---|
 | Sajitha Madugalle | Behavioural modelling |
-| Lohan Atapattu | Schematic design and pre-layout simulation |
+| Lohan Atapattu | Schematic design and simulation |
 | Erandee Jayathilaka | Layout |
-| **Imasha Nethmal** | **Layout, post-layout simulation, and Tiny Tapeout submission** |
+| **Imasha Nethmal** | **Layout, simulation, and Tiny Tapeout submission** |
 
 Department of Electronic and Telecommunication Engineering, University of Moratuwa, Sri Lanka. Original repository: [LohanAtapattu/ttsky25_EpitaXC](https://github.com/LohanAtapattu/ttsky25_EpitaXC).
