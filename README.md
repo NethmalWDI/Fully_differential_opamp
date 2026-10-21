@@ -21,11 +21,11 @@ A two-stage, fully differential CMOS operational amplifier designed in the open-
 | Power | ≈ 500 µW |
 | Layout area | ≈ 0.04 mm² |
 
-<p align="center">
-  <img src="figures/opamp_postlayout_gain_cmrr_phase.png" width="48%" alt="Post-layout gain, CMRR and phase"/>
-  <img src="figures/bpf_postlayout_response.png" width="48%" alt="Post-layout band-pass filter response"/>
-</p>
-<p align="center"><em>Left: post-layout open-loop gain, CMRR and phase. Right: 4th-order MFB band-pass filter built from two of these op-amps, centred at 1.05 kHz (213 Hz bandwidth). Figures from the ICM 2026 paper.</em></p>
+<p align="center"><img src="figures/opamp_postlayout_gain_cmrr_phase.png" width="75%" alt="Post-layout gain, CMRR and phase"/></p>
+<p align="center"><em><strong>Figure 1.</strong> Post-layout open-loop gain, CMRR and phase response of the op-amp (from the ICM 2026 paper).</em></p>
+
+<p align="center"><img src="figures/bpf_postlayout_response.png" width="75%" alt="Post-layout band-pass filter response"/></p>
+<p align="center"><em><strong>Figure 2.</strong> Post-layout response of the 4th-order MFB band-pass filter built from two of these op-amps, centred at 1.05 kHz with 213 Hz bandwidth (from the ICM 2026 paper).</em></p>
 
 ## Layout
 
