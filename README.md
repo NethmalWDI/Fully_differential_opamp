@@ -7,7 +7,7 @@ A two-stage, fully differential CMOS operational amplifier designed in the open-
 - **Paper:** I. Nethmal\*, L. Atapattu\*, E. Jayathilaka\*, S. Madugalle\*, *et al.*, "An Open-Source CMOS ASIC for I/Q Based Electrode-Skin Impedance Mismatch Extraction," accepted at **IEEE ICM 2026** (\*equal contribution).
 - **System-level work:** "A Dry-Contact Ear-EEG System With Continuous Electrode-Skin Impedance Mismatch Monitoring for Motion Artifact Cancellation Using DRL Stimulus," **IEEE BioCAS 2026** — [arXiv:2609.02777](https://arxiv.org/abs/2609.02777)
 - **Status:** fabricated chips received; post-silicon functional testing is in progress. All performance figures below are **post-layout simulation**, not measurements.
-- Tiny Tapeout datasheet: [docs/info.md](docs/info.md)
+- Tiny Tapeout datasheet: [EpitaXC](https://tinytapeout.com/chips/ttsky25a/tt_um_diff)
 
 ## Results (post-layout simulation)
 
